@@ -1,17 +1,14 @@
-#!/usr/bin/python
 import sys, os
-
-
 def funcionmt2(cc):
   operador = operadores.get(cc[0], cc[0] + "no se encuentra ")
   asig = "M=M" + operador + "D\n"
   return popD + getM + asig
-
+#Para los prefijos dedicados para not y neg
 def funcionmt1(cc):
   operador = operadores.get(cc[0], cc[0] + "no se encuentra ")
   asig = "M=" + operador + "M\n"
   return getM + asig
-
+#funcion para los prefijo que indican validación
 def funcionbool(cc):
   global gtcont
   global ltcont
@@ -34,7 +31,7 @@ def funcionbool(cc):
 
   return popD + getM + diffTrue + test + makeFalse + label
 
-
+#Funcion dedicada a el manelo en la pila con push
 def funcionpush(cc):
   sentencia = cc[1]
   index = cc[2]
@@ -54,7 +51,7 @@ def funcionpush(cc):
     value = indexD + valueD
 
   return value + push
-
+#Funcion dedicada a el manelo en la pila con pop
 def funcionpop(cc):
   sentencia = cc[1]
   index = cc[2]
@@ -86,8 +83,51 @@ def translate(line):
   else:
     f = translations.get(cc[0], lambda x: "\n///" + cc[0] + " no se encuentra\n\n")
     return f(cc)
-  
+#En el siguiente diccionario dividimos clasificamos estos prefijos de identacion 
+#de acuerdo a las funciones creadas para cada grupo. 
+translations = {
+    "add": funcionmt2,
+    "sub": funcionmt2,
+    "or" : funcionmt2,
+    "and": funcionmt2,
+    "neg": funcionmt1,
+    "not": funcionmt1,
+    "eq" : funcionbool,
+    "gt" : funcionbool,
+    "lt" : funcionbool,
+    "push" : funcionpush,
+    "pop"  : funcionpop,
+    }
+#inicializamos en 0 las siguientes variables contadoras
+gtcont = 0
+ltcont = 0
+eqcont = 0
 
+popD = "@SP\nAM=M-1\nD=M\n"
+getM = "@SP\nA=M-1\n"
+diffTrue = "D=M-D\nM=-1\n"
+makeFalse = "@SP\nA=M-1\nM=0\n"
+push = "@SP\nA=M\nM=D\n@SP\nM=M+1\n"
+#Se crea diccionario que asigna los prefijos de identacion y operadores en el codigo VM
+operadores = {
+    "sub" : "-",
+    "add" : "+",
+    "and" : "&",
+    "or"  : "|",
+    "neg" : "-",
+    "not" : "!",
+    }
+#Se crea diccionario con los prefijos de estado
+segPointers = {
+    "argument" : "ARG",
+    "this" : "THIS",
+    "that" : "THAT",
+    "local" : "LCL",
+    "temp" : "5",
+    "pointer" : "3"
+    }
+
+#Aqui el cabezal de ejecucion
 def main():
   arg = sys.argv[1]
   infiles = []
@@ -114,50 +154,6 @@ def main():
     for line in infile:
       outfile.write(translate(line))
     
-
-translations = {
-    "add": funcionmt2,
-    "sub": funcionmt2,
-    "or" : funcionmt2,
-    "and": funcionmt2,
-    "neg": funcionmt1,
-    "not": funcionmt1,
-    "eq" : funcionbool,
-    "gt" : funcionbool,
-    "lt" : funcionbool,
-    "push" : funcionpush,
-    "pop"  : funcionpop,
-    }
-
-gtcont = 0
-ltcont = 0
-eqcont = 0
-
-popD = "@SP\nAM=M-1\nD=M\n"
-getM = "@SP\nA=M-1\n"
-diffTrue = "D=M-D\nM=-1\n"
-makeFalse = "@SP\nA=M-1\nM=0\n"
-push = "@SP\nA=M\nM=D\n@SP\nM=M+1\n"
-
-operadores = {
-    "sub" : "-",
-    "add" : "+",
-    "and" : "&",
-    "or"  : "|",
-    "neg" : "-",
-    "not" : "!",
-    }
-
-segPointers = {
-    "argument" : "ARG",
-    "this" : "THIS",
-    "that" : "THAT",
-    "local" : "LCL",
-    "temp" : "5",
-    "pointer" : "3"
-    }
-
-
 
 if __name__ == "__main__":
   main()
